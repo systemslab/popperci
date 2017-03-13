@@ -1,25 +1,14 @@
 ## Readme
 
-web2py is a free open source full-stack framework for rapid development of fast, scalable, secure and portable database-driven web-based applications. 
+PopperCI is based on web2py, a free open source full-stack framework for rapid development of fast, scalable, secure and portable database-driven web-based applications. It is written and programmable in Python.
 
-It is written and programmable in Python. LGPLv3 License
-
-Learn more at http://web2py.com
-
-## Google App Engine deployment
-
-    cp examples/app.yaml ./
-    cp handlers/gaehandler.py ./
-    
-Then edit ./app.yaml and replace "yourappname" with yourappname.
-
-## Important reminder about this GIT repo
+## Important reminder about this Git repo
 
 An important part of web2py is the Database Abstraction Layer (DAL). In early 2015 this was decoupled into a separate code-base (PyDAL). In terms of git, it is a sub-module of the main repository.
 
 The use of a sub-module requires a one-time use of the --recursive flag for git clone if you are cloning web2py from scratch.
 
-    git clone --recursive https://github.com/web2py/web2py.git
+    git clone --recursive https://github.com/systemslab/popperci.git
 
 If you have an existing repository, the commands below need to be executed at least once:
 
@@ -31,25 +20,13 @@ If you have a folder gluon/dal you must remove it:
 
 PyDAL uses a separate stable release cycle to the rest of web2py. PyDAL releases will use a date-naming scheme similar to Ubuntu. Issues related to PyDAL should be reported to its separate repository.
 
-
-## Documentation (readthedocs.org)
-
-[![Docs Status](https://readthedocs.org/projects/web2py/badge/?version=latest&style=flat-square)](http://web2py.rtfd.org/)
-
-## Tests
-
-[![Build Status](https://img.shields.io/travis/web2py/web2py/master.svg?style=flat-square&label=Travis-CI)](https://travis-ci.org/web2py/web2py)
-[![MS Build Status](https://img.shields.io/appveyor/ci/web2py/web2py/master.svg?style=flat-square&label=Appveyor-CI)](https://ci.appveyor.com/project/web2py/web2py)
-[![Coverage Status](https://img.shields.io/codecov/c/github/web2py/web2py.svg?style=flat-square)](https://codecov.io/github/web2py/web2py)
-
-
 ## Installation Instructions
 
 To start web2py there is NO NEED to install it. Just unzip and do:
 
     python web2py.py
 
-That's it!!!
+That's it!
 
 ## web2py directory structure
 
@@ -68,9 +45,7 @@ That's it!!!
         applications/              > are the apps
             admin/                 > web based IDE
                 ...
-            examples/              > examples, docs, links
-                ...
-            welcome/               > the scaffolding app (they all copy it)
+            popperci/              > the PopperCI webapp
                 ABOUT
                 LICENSE
                 models/
@@ -97,4 +72,4 @@ That's it!!!
 
 ## Issues?
 
-Report issues at https://github.com/web2py/web2py/issues
+Report issues at https://github.com/systemslab/popperci/issues
