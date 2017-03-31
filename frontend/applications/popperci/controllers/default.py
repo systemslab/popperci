@@ -1,23 +1,15 @@
 # -*- coding: utf-8 -*-
-# this file is released under public domain and you can use without limitations
 
 # -------------------------------------------------------------------------
-# This is a sample controller
-# - index is the default action of any application
-# - user is required for authentication and authorization
-# - download is for downloading files uploaded in the db (does streaming)
+# This is the page controller
+# - index is the default action of PopperCI (the "dashboard")
+# - user is required for authentication and authorization with Jenkins
+# - download is for downloading files uploaded in the db (not currently used, from scaffold)
 # -------------------------------------------------------------------------
 
 
 @auth.requires_login()
 def index():
-    """
-    example action using the internationalization operator T and flash
-    rendered by views/default/index.html or views/generic.html
-
-    if you need a simple wiki simply replace the two lines below with:
-    return auth.wiki()
-    """
     return dict()
 
 
@@ -38,6 +30,19 @@ def user():
     also notice there is http://..../[app]/appadmin/manage/auth to allow administrator to manage users
     """
     return dict(form=auth())
+
+
+def credentials():
+    # Make the form
+    form = SQLFORM(db.credentials)
+    db.credentials.owner_id.writable = False
+    db.credentials.owner_id.readable = False
+    db.credentials.is_attached.readable = False
+    db.credentials.is_attached.writable = False
+    # What to do if the form was filled out successfully
+    if form.process().accepted:
+        redirect(URL('default', 'index'))
+    return dict(form=form)
 
 
 @cache.action()

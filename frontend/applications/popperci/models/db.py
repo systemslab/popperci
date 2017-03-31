@@ -110,9 +110,6 @@ auth.settings.registration_requires_verification = False
 auth.settings.registration_requires_approval = False
 auth.settings.reset_password_requires_verification = True
 
-# TODO: Replace URL with appropriate Jenkins URL
-auth.settings.login_methods.append(basic_auth('http://127.0.0.1:8080/'))
-
 # -------------------------------------------------------------------------
 # Define your tables below (or better in another model file) for example
 #
@@ -129,6 +126,36 @@ auth.settings.login_methods.append(basic_auth('http://127.0.0.1:8080/'))
 # >>> rows = db(db.mytable.myfield == 'value').select(db.mytable.ALL)
 # >>> for row in rows: print row.id, row.myfield
 # -------------------------------------------------------------------------
+
+# Prevents crashes when logged out and auth.user is None
+if auth.user is None:
+    identifier = ''
+    identifier_name = ''
+else:
+    identifier = auth.user.id
+    identifier_name = auth.user.username
+
+# Results/validation databases
+db.define_table('results',
+                Field('result_id', 'string', required=True),
+                Field('project', 'string', required=True),
+                Field('experiment', 'string')
+                )
+
+db.define_table('validation',
+                Field('validation_id', 'string', required=True),
+                Field('validation', 'string', required=True),
+                Field('status', 'string', required=True)
+                )
+
+# Credentials database
+db.define_table('credentials',
+                Field('owner_id', 'string', readable=False, writable=False, required=True, default=identifier),
+                Field('name', 'string', required=True),
+                Field('is_attached', 'boolean', default=False, required=True),
+                Field('cred_text', 'text'),
+                Field('cred_file', 'upload')
+                )
 
 # -------------------------------------------------------------------------
 # after defining tables, uncomment below to enable auditing
