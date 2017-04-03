@@ -6,3 +6,5 @@ frontend/welcome.w2p
 .DS_Store
 frontend/httpserver.pid
 .ropeproject
+frontend/.idea/
+.idea/
