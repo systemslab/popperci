@@ -32,17 +32,39 @@ def user():
     return dict(form=auth())
 
 
+# Shows a list of credentials or prompts the user to create one if they haven't already
+@auth.requires_login()
 def credentials():
-    # Make the form
-    form = SQLFORM(db.credentials)
+    # Pull up list of credentials for user
+    cred_list = db(db.credentials.owner_id == auth.user.id).select(orderby=~db.credentials.id)
+    # Redirect to add page if no credentials added yet
+    if request.args(0) != 'add' and len(cred_list) == 0:
+        redirect(URL('default', 'credentials', args=['add']))
+    # Hide the fields we don't want to show and generate the form
     db.credentials.owner_id.writable = False
     db.credentials.owner_id.readable = False
-    db.credentials.is_attached.readable = False
     db.credentials.is_attached.writable = False
-    # What to do if the form was filled out successfully
+    db.credentials.is_attached.readable = False
+    form = SQLFORM(db.credentials)
     if form.process().accepted:
+        # If a file was uploaded, set is_attached to True
+        if form.vars.cred_file is not None:
+            db(db.credentials.id == form.vars.id).update(is_attached=True)
+        redirect(URL('default', 'credentials'))
+    return dict(form=form, cred_list=cred_list)
+
+
+# This function just deletes a credential from the credential page, there is no
+# HTML associated with this function.
+@auth.requires_login()
+def delete_credentials():
+    cred_id = request.args(0)
+    # Check permissions before deleting
+    if db(db.credentials.id == cred_id).select()[0].owner_id != str(auth.user.id):
         redirect(URL('default', 'index'))
-    return dict(form=form)
+    # Delete the credential and redirect to another page
+    db(db.credentials.id == cred_id).delete()
+    redirect(URL('default', 'credentials'))
 
 
 @cache.action()
