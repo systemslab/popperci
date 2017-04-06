@@ -81,7 +81,6 @@ response.form_label_separator = myconf.get('forms.separator') or ''
 # -------------------------------------------------------------------------
 
 from gluon.tools import Auth, Service, PluginManager
-from gluon.contrib.login_methods.basic_auth import basic_auth
 
 # host names must be a list of allowed host names (glob syntax allowed)
 auth = Auth(db, host_names=myconf.get('host.names'))
@@ -127,6 +126,8 @@ auth.settings.reset_password_requires_verification = True
 # >>> for row in rows: print row.id, row.myfield
 # -------------------------------------------------------------------------
 
+from datetime import datetime
+
 # Prevents crashes when logged out and auth.user is None
 if auth.user is None:
     identifier = ''
@@ -135,20 +136,43 @@ else:
     identifier = auth.user.id
     identifier_name = auth.user.username
 
-# Results/validation databases
-db.define_table('results',
+# Project status defined by most recent build
+db.define_table('project',
+                Field('project_name', 'string', required=True),
                 Field('result_id', 'string', required=True),
-                Field('project', 'string', required=True),
-                Field('experiment', 'string')
+                # Field('project_id', 'string', required=True), # Not used
+                Field('time_stamp', 'datetime', default=datetime.utcnow(), required=True),
+                Field('workspace', 'string', required=True)
+                )
+
+db.define_table('build',
+                Field('user_id', 'integer', required=True),
+                Field('project', 'string', required=True),     # to associate projects with builds
+                Field('meta', 'string'),
+                Field('status', 'string'),                    # NEW: Store running/done
+
+                # Old/unused fields
+                Field('build_name', 'string'),                 # if not needed, we can remove
+                Field('build_id', 'string'),                   # to associate experiments with this build
+                )
+
+db.define_table('experiment',
+                Field('experiment_name', 'string'),
+                Field('build_id', 'string'),                   # to associate each experiment with a build
+                Field('status', 'string'),
+
+                # Old/unused fields
+                Field('experiment_id', 'string')             # to associate validations with an experiment
                 )
 
 db.define_table('validation',
+                Field('validation_name', 'string'),
                 Field('validation_id', 'string', required=True),
+                Field('experiment_id', 'string', required=True),
                 Field('validation', 'string', required=True),
                 Field('status', 'string', required=True)
                 )
 
-# Credentials database
 db.define_table('credentials',
                 Field('owner_id', 'string', readable=False, writable=False, required=True, default=identifier),
                 Field('name', 'string', required=True),

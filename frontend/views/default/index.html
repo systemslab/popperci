@@ -1,35 +1,157 @@
-{{left_sidebar_enabled=True}}
 {{extend 'layout.html'}}
 
-{{if request.vars.id is None:}}
-    <h2>Welcome to PopperCI!</h2>
-    <p class="lead">{{=T('Select a job on the left to continue')}}</p>
-{{else:}}
-<!-- Page Heading -->
-    <div class="row page-header">
-        <h1 class="dashhead-title" style="padding-left: 25px">{{=request.vars.id}}</h1>
-    </div> <!-- /.row -->
-{{pass}}
+<div id="ractive_target"></div>
+<script id="ractive_template" type="text/ractive">
+    <div class="col-md-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a class="btn-block" href="{{=URL('admin','default','index')}}">
+                        <i class="glyphicon glyphicon-cog"></i>
+                        {{=T("Projects")}}
+                    </a>
+                </h3>
+            </div>
+            <ul class="list-group list-group-default">
+                {% #each project_dict:id %}
+                    <!-- TODO: Add project status here -->
+                    {% #if status == 'FAIL' %}
+                        <li class="list-group-item list-group-item-danger text-danger">
+                            <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
+                            <a class="text-danger" href="{{=URL('default','index')}}?id={% name %}" on-click="set_val:{% name %}">{% name %}</a>
+                        </li>
+                    {% /if %}
+                    {% #if status == 'PASS' %}
+                        <li class="list-group-item list-group-item-success text-success">
+                            <i class="fa fa-check" aria-hidden="true"></i>&nbsp;
+                            <a class="text-success" href="{{=URL('default','index')}}?id={% name %}" on-click="set_val:{% name %}">{% name %}</a>
+                        </li>
+                    {% /if %}
+                    {% #if status == 'GOLD' %}
+                        <li class="list-group-item list-group-item-warning text-warning">
+                            <i class="fa fa-check" aria-hidden="true"></i>&nbsp;
+                            <a class="text-warning" href="{{=URL('default','index')}}?id={% name %}" on-click="set_val:{% name %}">{% name %}</a>
+                        </li>
+                    {% /if %}
+                    {% #if status == 'N/A' %}
+                        <li class="list-group-item list-group-item-default text-default">
+                            <i class="fa fa-question" aria-hidden="true"></i>&nbsp;
+                            <a class="text-default" href="{{=URL('default','index')}}?id={% name %}" on-click="set_val:{% name %}">{% name %}</a>
+                        </li>
+                    {% /if %}
+                {% /each %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-9">
+        {% #if nothing_selected %}
+            <h2>Welcome to PopperCI!</h2>
+            <p class="lead">{{=T('Select a job on the left to continue')}}</p>
+        {% else %}
+            <!-- Page Heading -->
+            <div class="row page-header" style="margin-top: 10px">
+                <h1 class="dashhead-title" style="padding-left: 25px">{{=request.vars.id}}</h1>
+            </div> <!-- /.row -->
+            <div id="exTab2" class="container col-sm-12 col-md-12">
+                {{if request.vars.build is None:}}
+                <div class="panel-group col-md-11">
+                    {% #each build_dict:id %}
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a href="{{=URL('default', 'index', vars=dict(id=request.vars.id if request.vars.id is not None else 'None'))}}&build={% id %}">
+                                    {% #if status == 'Running' %}
+                                        <i class="fa fa-refresh fa-spin fa-fw"></i>
+                                    {% else %}
+                                        <i class="fa fa-check" aria-hidden="true"></i>
+                                    {% /if %}
+                                    &nbsp;&nbsp;{% name %}
+                                </a>
+                                <span class="badge badge-default badge-pill pull-right"><b>{% count %}</b> experiments</span>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <p><i class="fa fa-calendar-o fa-fw" aria-hidden="true"></i>&nbsp;<b>Timestamp: </b>4 hours
+                                    ago</p>
+                                <p><i class="fa fa-user fa-fw" aria-hidden="true"></i>&nbsp;<b>Author: </b>An Author</p>
+                                <p><i class="fa fa-code-fork fa-fw" aria-hidden="true"></i>&nbsp;<b>Commit: </b>Commit ID</p>
+                                <p><i class="fa fa-commenting fa-fw" aria-hidden="true"></i>&nbsp;<b>Message:</b> Commit Message</p>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    {% /each %}
+                </div>
+                {{else:}}
+                    <div class="alert alert-info">
+                        <strong>Note: </strong> Showing experiments for all builds}}
+                    </div>
+                    <ul class="list-group col-sm-11 col-md-11">
+                        {% #each experiment_dict:id %}
+                            <li class="list-group-item justify-content-between">
+                                <p>{% name %}
+                                <span class="badge badge-default badge-pill pull-right">{% status %}</span>
+                            </li>
+                        {% /each %}
+                    </ul>
+                {{pass}}
+            </div>
+        {% /if %}
+    </div>
 
-{{block left_sidebar}}
-<div class="panel panel-default">
-  <div class="panel-heading"><h3 class="panel-title"><a class="btn-block" href="{{=URL('admin','default','index')}}">
-      <i class="glyphicon glyphicon-cog"></i>
-      {{=T("Jobs")}}
-    </a></h3></div>
-  <ul class="list-group list-group-default">
-      <li class="list-group-item list-group-item-danger text-danger">
-          <i class="fa fa-times" aria-hidden="true"></i>&nbsp;
-          <a class="text-warning" href="{{=URL('default','index', vars=dict(id='test1'))}}">test1</a>
-      </li>
-      <li class="list-group-item list-group-item-success text-success">
-          <i class="fa fa-check" aria-hidden="true"></i>&nbsp;
-          <a class="text-success" href="{{=URL('default','index', vars=dict(id='test2'))}}">test2</a>
-      </li>
-    <li class="list-group-item list-group-item-warning text-warning">
-        <i class="fa fa-check" aria-hidden="true"></i>&nbsp;
-        <a class="text-warning" href="{{=URL('default','index', vars=dict(id='test3'))}}">test3</a>
-    </li>
-  </ul>
-</div>
-{{end}}
+</script>
+
+<script>
+    $(function () {
+        // Ractive object
+        var ractive = new Ractive({
+            el: '#ractive_target',
+            template: '#ractive_template',
+            delimiters: ['{%', '%}'],
+            tripleDelimiters: ['{%%', '%%}'],
+            data: {
+                project_dict: {},
+                build_dict: {},
+                experiment_dict: {},
+                nothing_selected: {{='false' if request.vars.id else 'true'}},
+                p_id: "{{=request.vars.id or ''}}" // might not be needed
+            }
+        });
+        ractive.DEBUG = true;
+        $.ajax({
+            'url': '{{=URL('default', 'load_projects')}}',
+            'type': 'post',
+            'dataType': 'json',
+            'data': {},
+            'success': function (data) {
+                ractive.set('project_dict', data['project_dict']);
+            }
+        });
+    {{if request.vars.id is not None:}}
+        ractive.set('anything_selected', true);
+        var url_string = '{{=URL('default', 'load_builds')}}' + '?id=' + '{{=request.vars.id}}';
+        $.ajax({
+            'url': url_string,
+            'type': 'post',
+            'dataType': 'json',
+            'data': {},
+            'success': function (data) {
+                ractive.set('build_dict', data['build_dict']);
+            }
+        });
+    {{pass}}
+    {{if request.vars.build is not None:}}
+        var exp_url = '{{=URL('default', 'load_experiments')}}' + '?id=' + '{{=request.vars.id}}' + '&build=' + '{{=request.vars.build}}';
+        $.ajax({
+            'url': exp_url,
+            'type': 'post',
+            'dataType': 'json',
+            'data': {},
+            'success': function (data) {
+                ractive.set('experiment_dict', data['experiment_dict']);
+            }
+        });
+    {{pass}}
+    });
+</script>
