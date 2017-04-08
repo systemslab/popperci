@@ -1,3 +1,4 @@
+*.sw?
 *.pyc
 frontend/applications/__init__.py
 frontend/httpserver.log
