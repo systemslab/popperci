@@ -9,3 +9,5 @@ frontend/httpserver.pid
 .ropeproject
 frontend/.idea/
 .idea/
+logs/
+workspace/
