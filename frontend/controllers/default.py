@@ -7,10 +7,15 @@
 # - download is for downloading files uploaded in the db (not currently used, from scaffold)
 # -------------------------------------------------------------------------
 
+key = 'sample_key'
+
 
 @auth.requires_login()
 def index():
-    return dict()
+    project_url = URL('default', 'load_projects', hmac_key=key)
+    build_url = URL('default', 'load_builds', vars=dict(id=request.vars.id), hmac_key=key)
+    experiment_url = URL('default', 'load_experiments', vars=dict(id=request.vars.id, build=request.vars.build), hmac_key=key)
+    return dict(project_url=project_url, build_url=build_url, experiment_url=experiment_url)
 
 
 def user():
@@ -55,7 +60,7 @@ def credentials():
         if form.vars.cred_file is not None:
             db(db.credentials.id == form.vars.id).update(is_attached=True)
         redirect(URL('default', 'credentials'))
-    return dict(form=form, cred_list=cred_list)
+    return dict(form=form, cred_list=cred_list, key=key)
 
 
 # This function just deletes a credential from the credential page, there is no
@@ -67,6 +72,10 @@ def delete_credentials():
     Returns: Nothing, redirects only.
     Note: No HTML associated with page
     """
+
+    if not URL.verify(request, hmac_key=key):
+        raise HTTP(403)
+
     cred_id = request.args(0)
     # Check permissions before deleting
     if db(db.credentials.id == cred_id).select()[0].owner_id != str(auth.user.id):
@@ -82,6 +91,9 @@ def load_projects():
     Returns: A JSON with a dictionary of all the builds and their database fields.
     Note: No HTML associated with page
     """
+
+    if not URL.verify(request, hmac_key=key):
+        raise HTTP(403)
 
     populate_tables()
 
@@ -160,6 +172,10 @@ def load_builds():
     Returns: A JSON with a dictionary of all the builds and their database fields.
     Note: No HTML associated with page
     """
+
+    if not URL.verify(request, hmac_key=key):
+        raise HTTP(403)
+
     val = request.vars.id
     project = db(db.build.project == val).select()
     builds = []
@@ -180,10 +196,14 @@ def load_builds():
 
 def load_experiments():
     """
-    Description: Returns a list of devices to show on index.html. This is called from the JS.
+    Description: Returns a list of experiments to show on index.html. This is called from the JS.
     Returns: A JSON with a dictionary of all the builds and their database fields.
     Note: No HTML associated with page
     """
+
+    if not URL.verify(request, hmac_key=key):
+        raise HTTP(403)
+
     val = request.vars.build
     experiment = db((db.experiment.build_id == val)).select()
     experiment_list = []

@@ -120,7 +120,7 @@
         });
         ractive.DEBUG = true;
         $.ajax({
-            'url': '{{=URL('default', 'load_projects')}}',
+            'url': '{{=project_url}}',
             'type': 'post',
             'dataType': 'json',
             'data': {},
@@ -130,9 +130,8 @@
         });
     {{if request.vars.id is not None:}}
         ractive.set('anything_selected', true);
-        var url_string = '{{=URL('default', 'load_builds')}}' + '?id=' + '{{=request.vars.id}}';
         $.ajax({
-            'url': url_string,
+            'url': '{{=build_url}}',
             'type': 'post',
             'dataType': 'json',
             'data': {},
@@ -142,9 +141,8 @@
         });
     {{pass}}
     {{if request.vars.build is not None:}}
-        var exp_url = '{{=URL('default', 'load_experiments')}}' + '?id=' + '{{=request.vars.id}}' + '&build=' + '{{=request.vars.build}}';
         $.ajax({
-            'url': exp_url,
+            'url': '{{=experiment_url}}',
             'type': 'post',
             'dataType': 'json',
             'data': {},
