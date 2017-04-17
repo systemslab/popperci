@@ -84,14 +84,24 @@
                     {% /each %}
                 </div>
                 {{else:}}
-                    <div class="alert alert-info">
-                        <strong>Note: </strong> Showing experiments for all builds}}
-                    </div>
                     <ul class="list-group col-sm-11 col-md-11">
                         {% #each experiment_dict:id %}
                             <li class="list-group-item justify-content-between">
-                                <p>{% name %}
-                                <span class="badge badge-default badge-pill pull-right">{% status %}</span>
+                            <div style="white-space:nowrap">
+                                <div style="display:inline;">
+                                    {% name %}
+                                </div>
+                                <div class="pull-right" style="display:inline; white-space:nowrap;">
+                                    {% #if status == 'PASS' %}
+                                        <object data="{{=URL('static', 'images/Popper-OK.svg')}}" type="image/svg+xml"></object>
+                                    {% /if %}
+                                    {% #if status == 'FAIL' %}
+                                        <object data="{{=URL('static', 'images/Popper-Fail.svg')}}" type="image/svg+xml"></object>
+                                    {% /if %}
+                                    {% #if status == 'GOLD' %}
+                                        <object data="{{=URL('static', 'images/Popper-Gold.svg')}}" type="image/svg+xml"></object>
+                                    {% /if %}
+                                </div>
                             </li>
                         {% /each %}
                     </ul>
@@ -124,7 +134,7 @@
         ractive.set('build_dict', {{=build_list}});
     {{pass}}
     {{if request.vars.build is not None:}}
-        ractive.set('experiment_dict', {{=experiment_list}}});
+        ractive.set('experiment_dict', {{=experiment_list}});
     {{pass}}
     });
 </script>
