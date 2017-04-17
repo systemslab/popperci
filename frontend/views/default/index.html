@@ -119,39 +119,12 @@
             }
         });
         ractive.DEBUG = true;
-        $.ajax({
-            'url': '{{=URL('default', 'load_projects')}}',
-            'type': 'post',
-            'dataType': 'json',
-            'data': {},
-            'success': function (data) {
-                ractive.set('project_dict', data['project_dict']);
-            }
-        });
+        ractive.set('project_dict', {{=project_list}});
     {{if request.vars.id is not None:}}
-        ractive.set('anything_selected', true);
-        var url_string = '{{=URL('default', 'load_builds')}}' + '?id=' + '{{=request.vars.id}}';
-        $.ajax({
-            'url': url_string,
-            'type': 'post',
-            'dataType': 'json',
-            'data': {},
-            'success': function (data) {
-                ractive.set('build_dict', data['build_dict']);
-            }
-        });
+        ractive.set('build_dict', {{=build_list}});
     {{pass}}
     {{if request.vars.build is not None:}}
-        var exp_url = '{{=URL('default', 'load_experiments')}}' + '?id=' + '{{=request.vars.id}}' + '&build=' + '{{=request.vars.build}}';
-        $.ajax({
-            'url': exp_url,
-            'type': 'post',
-            'dataType': 'json',
-            'data': {},
-            'success': function (data) {
-                ractive.set('experiment_dict', data['experiment_dict']);
-            }
-        });
+        ractive.set('experiment_dict', {{=experiment_list}}});
     {{pass}}
     });
 </script>

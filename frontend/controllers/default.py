@@ -7,10 +7,16 @@
 # - download is for downloading files uploaded in the db (not currently used, from scaffold)
 # -------------------------------------------------------------------------
 
+from gluon.serializers import json
+from gluon.tools import prettydate
+
 
 @auth.requires_login()
 def index():
-    return dict()
+    project_list = XML(json(load_projects()))
+    build_list = XML(json(load_builds(request.vars.id)))
+    experiment_list = XML(json(load_experiments(request.vars.id, request.vars.build)))
+    return dict(project_list=project_list, build_list=build_list, experiment_list=experiment_list)
 
 
 def user():
@@ -61,6 +67,7 @@ def credentials():
 # This function just deletes a credential from the credential page, there is no
 # HTML associated with this function.
 @auth.requires_login()
+@auth.requires_signature()
 def delete_credentials():
     """
     Description: Deletes the credential specified in the URL parameters iff user requesting owns the credential
@@ -102,15 +109,15 @@ def load_projects():
 
         # Add the project to the JSON file if it doesn't exist there already
         if not any(info['name'] == project.project_name for info in project_list):
-            print project_list
             project_list.append(dict(name=project.project_name,
                                      id=project.id,
                                      workspace=project.workspace,
-                                     time=project.time_stamp,
+                                     time=str(prettydate(project.time_stamp, T)),
                                      status=status))
-    return response.json(dict(project_dict=project_list))
+    return project_list
 
 
+@auth.requires_login()
 # Test/pre-populate the DB, remove when not needed
 def populate_tables():
     """
@@ -154,13 +161,16 @@ def populate_tables():
     pass
 
 
-def load_builds():
+def load_builds(val):
     """
     Description: Returns a list of builds to show on index.html. This is called from the JS.
     Returns: A JSON with a dictionary of all the builds and their database fields.
     Note: No HTML associated with page
     """
-    val = request.vars.id
+
+    if val is None:
+        return None
+
     project = db(db.build.project == val).select()
     builds = []
 
@@ -175,16 +185,19 @@ def load_builds():
                            count=experiment_count,
                            status=i.status))
 
-    return response.json(dict(build_dict=builds))
+    return builds
 
 
-def load_experiments():
+def load_experiments(project, val):
     """
-    Description: Returns a list of devices to show on index.html. This is called from the JS.
+    Description: Returns a list of experiments to show on index.html. This is called from the JS.
     Returns: A JSON with a dictionary of all the builds and their database fields.
     Note: No HTML associated with page
     """
-    val = request.vars.build
+
+    if project is None or val is None:
+        return None
+
     experiment = db((db.experiment.build_id == val)).select()
     experiment_list = []
 
@@ -194,7 +207,7 @@ def load_experiments():
                                     build_id=i.build_id,
                                     status=i.status))
 
-    return response.json(dict(experiment_dict=experiment_list))
+    return experiment_list
 
 
 @cache.action()
