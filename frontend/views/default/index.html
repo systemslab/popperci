@@ -119,37 +119,12 @@
             }
         });
         ractive.DEBUG = true;
-        $.ajax({
-            'url': '{{=project_url}}',
-            'type': 'post',
-            'dataType': 'json',
-            'data': {},
-            'success': function (data) {
-                ractive.set('project_dict', data['project_dict']);
-            }
-        });
+        ractive.set('project_dict', {{=project_list}});
     {{if request.vars.id is not None:}}
-        ractive.set('anything_selected', true);
-        $.ajax({
-            'url': '{{=build_url}}',
-            'type': 'post',
-            'dataType': 'json',
-            'data': {},
-            'success': function (data) {
-                ractive.set('build_dict', data['build_dict']);
-            }
-        });
+        ractive.set('build_dict', {{=build_list}});
     {{pass}}
     {{if request.vars.build is not None:}}
-        $.ajax({
-            'url': '{{=experiment_url}}',
-            'type': 'post',
-            'dataType': 'json',
-            'data': {},
-            'success': function (data) {
-                ractive.set('experiment_dict', data['experiment_dict']);
-            }
-        });
+        ractive.set('experiment_dict', {{=experiment_list}}});
     {{pass}}
     });
 </script>
