@@ -93,13 +93,13 @@
                                 </div>
                                 <div class="pull-right" style="display:inline; white-space:nowrap;">
                                     {% #if status == 'PASS' %}
-                                        <object data="{{=URL('static', 'images/Popper-OK.svg')}}" type="image/svg+xml"></object>
+                                        <img src="{{=URL('static', 'images/png/Popper-OK.png')}}" alt="OK">
                                     {% /if %}
                                     {% #if status == 'FAIL' %}
-                                        <object data="{{=URL('static', 'images/Popper-Fail.svg')}}" type="image/svg+xml"></object>
+                                        <img src="{{=URL('static', 'images/png/Popper-Fail.png')}}" alt="OK">
                                     {% /if %}
                                     {% #if status == 'GOLD' %}
-                                        <object data="{{=URL('static', 'images/Popper-Gold.svg')}}" type="image/svg+xml"></object>
+                                        <img src="{{=URL('static', 'images/png/Popper-Gold.png')}}" alt="OK">
                                     {% /if %}
                                 </div>
                             </li>
