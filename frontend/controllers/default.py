@@ -13,6 +13,22 @@ from gluon.tools import prettydate
 
 @auth.requires_login()
 def index():
+    # Serves a badge SVG file if the badge argument is present
+    if request.args(0) == 'badge':
+        # Return to dashboard if project not found
+        q = db(db.project.project_name == request.vars.id).select()[0]
+        if request.args(0) is None or q is None:
+            redirect('default', 'index')
+            session.flash = T('Project not found')
+        experiment = db(db.experiment.build_id == q.id).select(orderby=~db.experiment.id)[0]
+        # Return to dashboard if not the owner of the project
+        if db(db.build.id == experiment.build_id).select()[0].user_id != auth.user.id:
+            redirect('default', 'index')
+            session.flash = T('Permission denied')
+        # Set the view to the SVG file
+        response.view = 'default/badge.svg'
+        return dict(status=experiment.status)
+    # Fetch and return the project, build, and experiment lists in JSON format otherwise
     project_list = XML(json(load_projects()))
     build_list = XML(json(load_builds(request.vars.id)))
     experiment_list = XML(json(load_experiments(request.vars.id, request.vars.build)))
@@ -150,7 +166,7 @@ def populate_tables():
                 if rand_status == 0:
                     status = 'GOLD'
                 elif rand_status == 1:
-                    status = 'PASS'
+                    status = 'OK'
                 else:
                     status = 'FAIL'
                 db.experiment.insert(

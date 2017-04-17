@@ -21,7 +21,7 @@
                             <a class="text-danger" href="{{=URL('default','index')}}?id={% name %}" on-click="set_val:{% name %}">{% name %}</a>
                         </li>
                     {% /if %}
-                    {% #if status == 'PASS' %}
+                    {% #if status == 'OK' %}
                         <li class="list-group-item list-group-item-success text-success">
                             <i class="fa fa-check" aria-hidden="true"></i>&nbsp;
                             <a class="text-success" href="{{=URL('default','index')}}?id={% name %}" on-click="set_val:{% name %}">{% name %}</a>
@@ -92,14 +92,14 @@
                                     {% name %}
                                 </div>
                                 <div class="pull-right" style="display:inline; white-space:nowrap;">
-                                    {% #if status == 'PASS' %}
-                                        <img src="{{=URL('static', 'images/png/Popper-OK.png')}}" alt="OK">
+                                    {% #if status == 'OK' %}
+                                        <img src="{{=URL('static', 'images/Popper-OK.png')}}" alt="OK">
                                     {% /if %}
                                     {% #if status == 'FAIL' %}
-                                        <img src="{{=URL('static', 'images/png/Popper-Fail.png')}}" alt="Fail">
+                                        <img src="{{=URL('static', 'images/Popper-Fail.png')}}" alt="Fail">
                                     {% /if %}
                                     {% #if status == 'GOLD' %}
-                                        <img src="{{=URL('static', 'images/png/Popper-Gold.png')}}" alt="Gold">
+                                        <img src="{{=URL('static', 'images/Popper-Gold.png')}}" alt="Gold">
                                     {% /if %}
                                 </div>
                             </li>
