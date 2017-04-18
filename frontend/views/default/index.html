@@ -21,7 +21,7 @@
                             <a class="text-danger" href="{{=URL('default','index')}}?id={% name %}" on-click="set_val:{% name %}">{% name %}</a>
                         </li>
                     {% /if %}
-                    {% #if status == 'PASS' %}
+                    {% #if status == 'OK' %}
                         <li class="list-group-item list-group-item-success text-success">
                             <i class="fa fa-check" aria-hidden="true"></i>&nbsp;
                             <a class="text-success" href="{{=URL('default','index')}}?id={% name %}" on-click="set_val:{% name %}">{% name %}</a>
@@ -84,14 +84,24 @@
                     {% /each %}
                 </div>
                 {{else:}}
-                    <div class="alert alert-info">
-                        <strong>Note: </strong> Showing experiments for all builds}}
-                    </div>
                     <ul class="list-group col-sm-11 col-md-11">
                         {% #each experiment_dict:id %}
                             <li class="list-group-item justify-content-between">
-                                <p>{% name %}
-                                <span class="badge badge-default badge-pill pull-right">{% status %}</span>
+                            <div style="white-space:nowrap">
+                                <div style="display:inline;">
+                                    {% name %}
+                                </div>
+                                <div class="pull-right" style="display:inline; white-space:nowrap;">
+                                    {% #if status == 'OK' %}
+                                        <img src="{{=URL('static', 'images/Popper-OK.png')}}" alt="OK">
+                                    {% /if %}
+                                    {% #if status == 'FAIL' %}
+                                        <img src="{{=URL('static', 'images/Popper-Fail.png')}}" alt="Fail">
+                                    {% /if %}
+                                    {% #if status == 'GOLD' %}
+                                        <img src="{{=URL('static', 'images/Popper-Gold.png')}}" alt="Gold">
+                                    {% /if %}
+                                </div>
                             </li>
                         {% /each %}
                     </ul>
@@ -124,7 +134,7 @@
         ractive.set('build_dict', {{=build_list}});
     {{pass}}
     {{if request.vars.build is not None:}}
-        ractive.set('experiment_dict', {{=experiment_list}}});
+        ractive.set('experiment_dict', {{=experiment_list}});
     {{pass}}
     });
 </script>
