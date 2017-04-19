@@ -1,6 +1,5 @@
-FROM jfloff/alpine-python:2.7-slim
+FROM python:2.7
 
 ADD entrypoint.py /
-ADD clone.sh /root/clone.sh
 
 ENTRYPOINT ["/entrypoint.py"]
