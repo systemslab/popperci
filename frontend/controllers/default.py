@@ -185,7 +185,7 @@ def populate_tables():
         for idx, j in enumerate(range(0, build_count)):
             db.build.insert(user_id=auth.user.id,
                             project=project_name,
-                            meta=loaded_webhook,
+                            meta=webhook,
                             status='Running' if randint(0, 1) == 0 else 'Done'
                             )
             for k in range(1, randint(2, 10)):
@@ -211,6 +211,8 @@ def load_builds(val):
     Note: No HTML associated with page
     """
 
+    import json
+
     if val is None:
         return None
 
@@ -220,12 +222,17 @@ def load_builds(val):
     for i in project:
         experiment_count = db(db.experiment.build_id == i.id).count()
         owner = db(db.auth_user.id == i.user_id).select()[0]
+        meta_info = json.loads(i.meta)
         build_name = "Build " + str(i.id) + " for " + owner.username
         builds.append(dict(project=i.project,
                            user=i.user_id,
                            id=i.id,
                            name=build_name,
                            count=experiment_count,
+                           meta_author=meta_info['head_commit']['author']['name'],
+                           meta_timestamp=meta_info['head_commit']['timestamp'],
+                           meta_commit=meta_info['head_commit']['id'],
+                           meta_message=meta_info['head_commit']['message'],
                            status=i.status))
 
     return builds

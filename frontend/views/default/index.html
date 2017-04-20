@@ -72,11 +72,10 @@
                         </div>
                         <div id="collapseOne" class="panel-collapse collapse in">
                             <div class="panel-body">
-                                <p><i class="fa fa-calendar-o fa-fw" aria-hidden="true"></i>&nbsp;<b>Timestamp: </b>4 hours
-                                    ago</p>
-                                <p><i class="fa fa-user fa-fw" aria-hidden="true"></i>&nbsp;<b>Author: </b>An Author</p>
-                                <p><i class="fa fa-code-fork fa-fw" aria-hidden="true"></i>&nbsp;<b>Commit: </b>Commit ID</p>
-                                <p><i class="fa fa-commenting fa-fw" aria-hidden="true"></i>&nbsp;<b>Message:</b> Commit Message</p>
+                                <p><i class="fa fa-calendar-o fa-fw" aria-hidden="true"></i>&nbsp;<b>Timestamp: </b>{% meta_timestamp %}</p>
+                                <p><i class="fa fa-user fa-fw" aria-hidden="true"></i>&nbsp;<b>Author: </b>{% meta_author %}</p>
+                                <p><i class="fa fa-code-fork fa-fw" aria-hidden="true"></i>&nbsp;<b>Commit: </b>{% meta_commit %}</p>
+                                <p><i class="fa fa-commenting fa-fw" aria-hidden="true"></i>&nbsp;<b>Message:</b> {% meta_message %}</p>
                             </div>
                         </div>
                     </div>
