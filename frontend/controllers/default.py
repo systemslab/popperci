@@ -3,7 +3,13 @@
 # -------------------------------------------------------------------------
 # This is the page controller
 # - index is the default action of PopperCI (the "dashboard")
-# - user is required for authentication and authorization with Jenkins
+# - credentials lets users add, upload, or delete credentials
+# - delete_credentials handles the actual logic for deleting a credential and is called from the credentials view
+# - load_projects generates a list of all projects with builds associated with the current user
+# - populate_tables generates dummy data for projects, builds, and experiments when no real world data is available
+# - load_builds, given a specific project, generates a list of builds associated with that project
+# - load_experiments generates a list of experiments associated with a build, given that build ID
+# - user handles user authentication, including username, email, and password management
 # - download is for downloading files uploaded in the db (not currently used, from scaffold)
 # -------------------------------------------------------------------------
 
@@ -63,20 +69,38 @@ def credentials():
     """
     # Pull up list of credentials for user
     cred_list = db(db.credentials.owner_id == auth.user.id).select(orderby=~db.credentials.id)
-    # Redirect to add page if no credentials added yet
-    if request.args(0) != 'add' and len(cred_list) == 0:
+
+    if (request.args(0) == 'edit') and (db(db.credentials.id == request.args(1)).select()):
+        # Set the form fields we know the info about already
+        cred_id = db(db.credentials.id == request.args(1)).select()[0].id
+        # Hide the fields we don't want to show
+        db.credentials.id.readable = False
+        db.credentials.owner_id.writable = False
+        db.credentials.owner_id.readable = False
+        db.credentials.is_attached.writable = False
+        db.credentials.is_attached.readable = False
+        form = SQLFORM(db.credentials, record=int(cred_id))
+        # Specify what fields are required and where to redirect next
+        form.custom.widget.name['requires'] = IS_NOT_EMPTY()
+        # What to do if the form was filled out successfully
+        if form.process().accepted:
+            session.flash = T('Credential edited')
+            redirect(URL('default', 'credentials'))
+        return dict(form=form)
+    elif request.args(0) != 'add' and len(cred_list) == 0:
         redirect(URL('default', 'credentials', args=['add']))
-    # Hide the fields we don't want to show and generate the form
-    db.credentials.owner_id.writable = False
-    db.credentials.owner_id.readable = False
-    db.credentials.is_attached.writable = False
-    db.credentials.is_attached.readable = False
-    form = SQLFORM(db.credentials)
-    if form.process().accepted:
-        # If a file was uploaded, set is_attached to True
-        if form.vars.cred_file is not None:
-            db(db.credentials.id == form.vars.id).update(is_attached=True)
-        redirect(URL('default', 'credentials'))
+    else:
+        # Hide the fields we don't want to show and generate the form
+        db.credentials.owner_id.writable = False
+        db.credentials.owner_id.readable = False
+        db.credentials.is_attached.writable = False
+        db.credentials.is_attached.readable = False
+        form = SQLFORM(db.credentials)
+        if form.process().accepted:
+            # If a file was uploaded, set is_attached to True
+            if form.vars.cred_file is not None:
+                db(db.credentials.id == form.vars.id).update(is_attached=True)
+            redirect(URL('default', 'credentials'))
     return dict(form=form, cred_list=cred_list)
 
 
@@ -144,11 +168,13 @@ def populate_tables():
     from random import randint
     import uuid
 
+    # Remove existing data from the databases
     db.project.truncate()
     db.build.truncate()
     db.experiment.truncate()
     db.commit()
 
+    # Generate a random amount of projects, builds, and experiments, then insert them into the DB
     some_count = randint(1, 10)
     for i in range(0, some_count):
         project_name = 'TestProject' + str(i)
@@ -159,6 +185,7 @@ def populate_tables():
         for idx, j in enumerate(range(0, build_count)):
             db.build.insert(user_id=auth.user.id,
                             project=project_name,
+                            meta=loaded_webhook,
                             status='Running' if randint(0, 1) == 0 else 'Done'
                             )
             for k in range(1, randint(2, 10)):
