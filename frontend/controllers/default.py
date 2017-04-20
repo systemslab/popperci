@@ -9,6 +9,7 @@
 # - populate_tables generates dummy data for projects, builds, and experiments when no real world data is available
 # - load_builds, given a specific project, generates a list of builds associated with that project
 # - load_experiments generates a list of experiments associated with a build, given that build ID
+# - load _validations loads validations for a specific experiment
 # - user handles user authentication, including username, email, and password management
 # - download is for downloading files uploaded in the db (not currently used, from scaffold)
 # -------------------------------------------------------------------------
@@ -38,7 +39,12 @@ def index():
     project_list = XML(json(load_projects()))
     build_list = XML(json(load_builds(request.vars.id)))
     experiment_list = XML(json(load_experiments(request.vars.id, request.vars.build)))
-    return dict(project_list=project_list, build_list=build_list, experiment_list=experiment_list)
+    validation_list = XML(json(load_validations(request.vars.id, request.vars.build, request.vars.experiment)))
+    print load_validations(request.vars.id, request.vars.build, request.vars.experiment)
+    return dict(project_list=project_list,
+                build_list=build_list,
+                experiment_list=experiment_list,
+                validation_list=validation_list)
 
 
 def user():
@@ -130,8 +136,6 @@ def load_projects():
     Note: No HTML associated with page
     """
 
-    populate_tables()
-
     # Find list of project names that match the user ID
     q = db(db.build.user_id == auth.user.id).select()
     project_list = []
@@ -157,8 +161,8 @@ def load_projects():
     return project_list
 
 
-@auth.requires_login()
 # Test/pre-populate the DB, remove when not needed
+@auth.requires_login()
 def populate_tables():
     """
     Description: Resets the project, build, and experiment databases and populates them with dummy fields for testing.
@@ -188,7 +192,7 @@ def populate_tables():
                             meta=webhook,
                             status='Running' if randint(0, 1) == 0 else 'Done'
                             )
-            for k in range(1, randint(2, 10)):
+            for k in range(1, randint(4, 10)):
                 rand_status = randint(0, 2)
                 if rand_status == 0:
                     status = 'GOLD'
@@ -197,10 +201,22 @@ def populate_tables():
                 else:
                     status = 'FAIL'
                 db.experiment.insert(
-                    experiment_name='Experiment ' + str(k+idx) + ' for build ' + str(j+1) + ' on ' + project_name,
-                    build_id=idx,
+                    experiment_name='Experiment ' + str(k) + ' for build ' + str(j) + ' on ' + project_name,
+                    build_id=db(db.build.user_id == auth.user.id).select().last().id,
                     status=status)
-
+                for l in range(1, randint(4, 10)):
+                    randk_status = randint(0, 2)
+                    if randk_status == 1:
+                        valk_status = 'fail'
+                    else:
+                        valk_status = 'success'
+                    db.validation.insert(
+                        validation_name='Validation ' + str(l) + ' for experiment ' + str(j + 1) + ' on ' + project_name,
+                        experiment_id=db(db.experiment).select().last().id,
+                        validation_id=str(uuid.uuid4()),
+                        validation="test validation field #" + str(l+k+j),
+                        status=valk_status)
+    redirect(URL('default', 'index'))
     pass
 
 
@@ -226,7 +242,7 @@ def load_builds(val):
         build_name = "Build " + str(i.id) + " for " + owner.username
         builds.append(dict(project=i.project,
                            user=i.user_id,
-                           id=i.id,
+                           build_id=i.id,
                            name=build_name,
                            count=experiment_count,
                            meta_author=meta_info['head_commit']['author']['name'],
@@ -247,17 +263,30 @@ def load_experiments(project, val):
 
     if project is None or val is None:
         return None
-
-    experiment = db((db.experiment.build_id == val)).select()
+    experiment = db((db.experiment.build_id == (int(val)+1))).select()
     experiment_list = []
-
     for i in experiment:
         experiment_list.append(dict(name=i.experiment_name,
-                                    id=i.id,
+                                    exp_id=i.id,
                                     build_id=i.build_id,
                                     status=i.status))
-
     return experiment_list
+
+
+def load_validations(project, val, exp):
+    print project, val, exp
+    if project is None or val is None or exp is None:
+        return None
+    validation = db((db.validation.experiment_id == int(exp))).select()
+    validation_list = []
+    for i in validation:
+        validation_list.append(dict(name=i.validation_name,
+                                    web2py_id=i.id,
+                                    validation_id=i.validation_id,
+                                    experiment_id=i.experiment_id,
+                                    status=i.status.title()))
+    print "Validation list: " + str(validation_list)
+    return validation_list
 
 
 @cache.action()
