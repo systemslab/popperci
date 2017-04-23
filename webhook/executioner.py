@@ -53,7 +53,7 @@ def popper_check_experiment(workspace, environment):
 
 
 def get_project_info(db, payload):
-    project = payload['repository']['name']
+    project_name = payload['repository']['name']
     url = payload['repository']['url']
     uname = payload['repository']['owner']['name']
 
@@ -63,7 +63,14 @@ def get_project_info(db, payload):
     if not user:
         raise Exception("User {} not registered.".format(uname))
 
-    return user.id, uname, project, url
+    projects = Table('project', MetaData(db), autoload=True)
+    project = users.select(projects.c.username == uname and
+                           projects.c.name == projectname).execute().fetchone()
+
+    if not project:
+        projects.insert().execute(user_id=uid, name=project_name, url=url)
+
+    return user.id, uname, project_name, url
 
 
 def insert_execution(db, uid, project, payload):

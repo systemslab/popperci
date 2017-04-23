@@ -63,6 +63,7 @@ def check_experiment():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--skip', default='', help='Stages to skip.')
+    parser.add_argument('--skip', default='',
+                        help='Comma-separated list of stages to skip.')
     args = parser.parse_args()
     check_experiment()
