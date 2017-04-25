@@ -40,11 +40,6 @@ def execute(stage, timeout):
     return p.poll()
 
 
-def append_to_file(fname, content):
-    with open(fname, 'aw') as f:
-        f.write(content)
-
-
 def check_experiment(skip, timeout):
     check_output('rm -rf popper_logs/ popper_status', shell=True)
     check_output('mkdir -p popper_logs/', shell=True)
@@ -76,7 +71,8 @@ def check_experiment(skip, timeout):
                     if '[true]' not in line:
                         STATUS = "SUCCESS"
 
-    append_to_file('popper_status', STATUS + '\n')
+    with open('popper_status', 'w') as f:
+        f.write(STATUS + '\n')
 
 
 class Unbuffered(object):
