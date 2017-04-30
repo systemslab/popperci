@@ -161,7 +161,6 @@ def load_projects():
     return project_list
 
 
-# Test/pre-populate the DB, remove when not needed
 @auth.requires_login()
 def populate_tables():
     """
@@ -176,6 +175,7 @@ def populate_tables():
     db.project.truncate()
     db.build.truncate()
     db.experiment.truncate()
+    db.validation.truncate()
     db.commit()
 
     # Generate a random amount of projects, builds, and experiments, then insert them into the DB
