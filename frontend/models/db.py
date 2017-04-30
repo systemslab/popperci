@@ -137,13 +137,13 @@ else:
     identifier_name = auth.user.username
 
 # Project status defined by most recent build
+# Project status defined by most recent build
 db.define_table('project',
                 Field('project_name', 'string', required=True),
                 Field('result_id', 'string', required=True),
                 # Field('project_id', 'string', required=True), # Not used
                 Field('time_stamp', 'datetime', default=datetime.utcnow(), required=True),
-                Field('workspace', 'string', required=True),
-                Field('url', 'string', required=True)
+                Field('workspace', 'string', required=True)
                 )
 
 db.define_table('build',
@@ -159,7 +159,7 @@ db.define_table('build',
 
 db.define_table('experiment',
                 Field('experiment_name', 'string'),
-                Field('build_id', 'string'),                   # to associate each experiment with a build
+                Field('build_id', 'integer'),                   # to associate each experiment with a build
                 Field('status', 'string'),
 
                 # Old/unused fields
