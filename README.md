@@ -29,8 +29,8 @@ To run an instance of the CI server using Docker:
 ```bash
 docker run --name popperci \
   -v /path/to/credentials/:/var/popperci/credentials \
-  -v /path/to/workspace/:/var/to/workspace \
-  -v /path/to/db/:/path/to/db \
+  -v /path/to/workspace/:/var/popperci/workspace \
+  -v /path/to/db/:/var/popperci/db \
   -v /usr/bin/docker:/usr/bin/docker \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -e WEB2PY_ADMIN=Pa55word! \
