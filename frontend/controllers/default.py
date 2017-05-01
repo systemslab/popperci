@@ -40,7 +40,6 @@ def index():
     build_list = XML(json(load_builds(request.vars.id)))
     experiment_list = XML(json(load_experiments(request.vars.id, request.vars.build)))
     validation_list = XML(json(load_validations(request.vars.id, request.vars.build, request.vars.experiment)))
-    print load_validations(request.vars.id, request.vars.build, request.vars.experiment)
     return dict(project_list=project_list,
                 build_list=build_list,
                 experiment_list=experiment_list,
@@ -137,28 +136,36 @@ def load_projects():
     """
 
     # Find list of project names that match the user ID
-    q = db(db.build.user_id == auth.user.id).select()
+    q = db(db.build.user_id == auth.user.id).select(orderby=~db.build.id)
+    seen_projects = []
     project_list = []
-
     for i in q:
-        # Find the status of the most recent experiment in builds corresponding to the project
-        # for the overall project status. If no experiments, return "N/A" as status.
-        try:
-            status = db(db.experiment.build_id == i.id).select(orderby=~db.experiment.id)[0].status
-        except IndexError:
-            status = "N/A"
+        if i.project not in seen_projects:
+            seen_projects.append(i.project)
+            # Find the status of the most recent experiment in builds corresponding to the project
+            # for the overall project status. If no experiments, return "N/A" as status.
+            try:
+                row = db(db.experiment.build_id == i.id).select(orderby=~db.experiment.id)[0]
+                status = row.status
+            except IndexError:
+                status = "N/A"
 
-        # Find the project row that corresponds to the project associated with the build
-        project = db(db.project.project_name == i.project).select()[0]
+            # Find the project row that corresponds to the project associated with the build
+            project = db(db.project.project_name == i.project).select()[0]
 
-        # Add the project to the JSON file if it doesn't exist there already
-        if not any(info['name'] == project.project_name for info in project_list):
-            project_list.append(dict(name=project.project_name,
-                                     id=project.id,
-                                     workspace=project.workspace,
-                                     time=str(prettydate(project.time_stamp, T)),
-                                     status=status))
+            # Add the project to the JSON file if it doesn't exist there already
+            if not any(info['name'] == project.project_name for info in project_list):
+                project_list.insert(0, dict(name=project.project_name,
+                                         id=project.id,
+                                         workspace=project.workspace,
+                                         time=str(prettydate(project.time_stamp, T)),
+                                         status=status))
     return project_list
+
+
+def populate_demo():
+    demo_tables()
+    redirect(URL('default', 'index'))
 
 
 @auth.requires_login()
@@ -232,7 +239,7 @@ def load_builds(val):
     if val is None:
         return None
 
-    project = db(db.build.project == val).select()
+    project = db(db.build.project == val).select(orderby=~db.build.id)
     builds = []
 
     for i in project:
@@ -263,7 +270,7 @@ def load_experiments(project, val):
 
     if project is None or val is None:
         return None
-    experiment = db((db.experiment.build_id == (int(val)+1))).select()
+    experiment = db((db.experiment.build_id == (int(val)))).select(orderby=~db.experiment.id)
     experiment_list = []
     for i in experiment:
         experiment_list.append(dict(name=i.experiment_name,
@@ -274,10 +281,10 @@ def load_experiments(project, val):
 
 
 def load_validations(project, val, exp):
-    print project, val, exp
     if project is None or val is None or exp is None:
         return None
-    validation = db((db.validation.experiment_id == int(exp))).select()
+    print exp
+    validation = db((db.validation.experiment_id == int(exp))).select(orderby=~db.validation.id)
     validation_list = []
     for i in validation:
         validation_list.append(dict(name=i.validation_name,
@@ -285,7 +292,6 @@ def load_validations(project, val, exp):
                                     validation_id=i.validation_id,
                                     experiment_id=i.experiment_id,
                                     status=i.status.title()))
-    print "Validation list: " + str(validation_list)
     return validation_list
 
 

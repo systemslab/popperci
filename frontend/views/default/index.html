@@ -6,7 +6,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a class="btn-block" href="{{=URL('default', 'populate_tables')}}">
+                    <a class="btn-block" href="{{=URL('default', 'populate_demo')}}">
                         <i class="glyphicon glyphicon-cog"></i>
                         {{=T("Projects")}}
                     </a>
@@ -59,21 +59,21 @@
                                 <a href="#" class="list-group-item list-group-item-action list-group-item-danger flex-column align-items-start active">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h4 class="mb-1">{% name %}</h4>
-                                        <small>{% validation_id %}</small>
+                                        <small>ID: {% validation_id %}</small>
                                     </div>
                                     <p class="mb-1">{% validation %}</p>
                                     <small>Status: {% status %}</small>
-                                </a>
+                                </a><br>
                             {% /if %}
                             {% #if status == 'Pass' %}
                                 <a href="#" class="list-group-item list-group-item-action list-group-item-success flex-column align-items-start active">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h4 class="mb-1">{% name %}</h4>
-                                        <small>{% validation_id %}</small>
+                                        <small>ID: {% validation_id %}</small>
                                     </div>
                                     <p class="mb-1">{% validation %}</p>
                                     <small>Status: {% status %}</small>
-                                </a>
+                                </a><br>
                             {% /if %}
 
                         {% /each %}
