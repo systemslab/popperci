@@ -283,7 +283,6 @@ def load_experiments(project, val):
 def load_validations(project, val, exp):
     if project is None or val is None or exp is None:
         return None
-    print exp
     validation = db((db.validation.experiment_id == int(exp))).select(orderby=~db.validation.id)
     validation_list = []
     for i in validation:
