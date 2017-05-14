@@ -1,5 +1,7 @@
 # PopperCI
 
+![](https://github.com/systemslab/popperci-paper/raw/master/paper/figures/popperci_workflow.png)
+
 CI server for Popperized experiments (running at 
 <http://ci.falsifiable.us>). This repo contains:
 
