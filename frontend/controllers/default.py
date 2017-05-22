@@ -290,6 +290,7 @@ def load_validations(project, val, exp):
                                     web2py_id=i.id,
                                     validation_id=i.validation_id,
                                     experiment_id=i.experiment_id,
+                                    validation=i.validation,
                                     status=i.status.title()))
     return validation_list
 
@@ -311,3 +312,4 @@ def call():
     supports xml, json, xmlrpc, jsonrpc, amfrpc, rss, csv
     """
     return service()
+

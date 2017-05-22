@@ -81,6 +81,8 @@ response.form_label_separator = myconf.get('forms.separator') or ''
 # -------------------------------------------------------------------------
 
 from gluon.tools import Auth, Service, PluginManager
+from gluon.contrib.login_methods.oauth10a_account import OAuthAccount
+import requests
 
 # host names must be a list of allowed host names (glob syntax allowed)
 auth = Auth(db, host_names=myconf.get('host.names'))
@@ -90,7 +92,54 @@ plugins = PluginManager()
 # -------------------------------------------------------------------------
 # create all tables needed by auth if not custom tables
 # -------------------------------------------------------------------------
-auth.define_tables(username=True, signature=False)
+
+# define the auth_table before call to auth.define_tables()
+
+auth_table = db.define_table(
+   auth.settings.table_user_name,
+   Field('first_name', length=128, default=""),
+   Field('last_name', length=128, default=""),
+   Field('username', length=128, default="", unique=True),
+   Field('password', 'password', length=256, readable=False, label='Password'),
+   Field('registration_key', length=128, default="", writable=False, readable=False))
+
+auth_table.username.requires = IS_NOT_IN_DB(db, auth_table.username)
+auth.define_tables()
+
+CLIENT_ID = myconf.get('github.id')
+CLIENT_SECRET = myconf.get('github.secret')
+AUTH_URL = "http://github.com/login/oauth/authorize"
+TOKEN_URL = "https://github.com/login/oauth/access_token"
+ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token"
+
+
+class GitHubOAuth(OAuthAccount):
+    def get_user(self):
+        if not self.accessToken():
+            return None
+
+        verify = requests.get(ACCESS_TOKEN_URL,
+                              headers={"Authorization": "Bearer " + self.accessToken()}).json()
+
+        # Test
+        print verify
+
+        # Populate nonsense for now
+        return dict(id=verify['id'],
+                    username=verify['id'],
+                    first_name=verify['id'],
+                    last_name=verify['id'])
+
+auth.settings.login_form = GitHubOAuth(globals(),
+                                       CLIENT_ID,
+                                       CLIENT_SECRET,
+                                       AUTH_URL,
+                                       TOKEN_URL,
+                                       ACCESS_TOKEN_URL)
+
+auth.settings.actions_disabled = ['register', 'change_password', 'request_reset_password']
+
+#auth.define_tables(username=True, signature=False)
 
 # -------------------------------------------------------------------------
 # configure email
@@ -186,3 +235,4 @@ db.define_table('credentials',
 # after defining tables, uncomment below to enable auditing
 # -------------------------------------------------------------------------
 # auth.enable_record_versioning(db)
+
