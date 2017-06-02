@@ -95,4 +95,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     sys.stdout = Unbuffered(sys.stdout)
 
-    check_experiment(args.skip, args.timeout)
+    check_experiment(args.skip, int(args.timeout))
