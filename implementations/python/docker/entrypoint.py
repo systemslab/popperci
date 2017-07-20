@@ -74,6 +74,8 @@ def check_experiment(skip, timeout):
     with open('popper_status', 'w') as f:
         f.write(STATUS + '\n')
 
+    print('status: ' + STATUS)
+
 
 class Unbuffered(object):
     def __init__(self, stream):
@@ -95,4 +97,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
     sys.stdout = Unbuffered(sys.stdout)
 
-    check_experiment(args.skip, int(args.timeout))
+    if path.isdir('./experiments'):
+        for f in os.listdir('experiments'):
+            if not f.startswith('.') and path.isdir('experiments/' + f):
+                print('\nChecking experiment ' + f)
+                os.chdir('experiments/' + f)
+                check_experiment(args.skip, int(args.timeout))
+                os.chdir('../../')
+    else:
+        check_experiment(args.skip, int(args.timeout))
